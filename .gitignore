@@ -1,0 +1,61 @@
+# STM32CubeIDE
+Debug/
+Release/
+.settings/
+.cproject
+.project
+.mxproject
+
+# Build directories
+**/Debug/
+**/Release/
+
+# Generated files
+*.o
+*.d
+*.su
+*.elf
+*.hex
+*.bin
+*.map
+*.list
+
+# STM32CubeMX generated files (optional - einige bevorzugen diese zu committen)
+# Drivers/
+# Middlewares/
+# Inc/stm32*_it.h
+# Src/stm32*_it.c
+# Inc/stm32*_hal_conf.h
+
+# Core generated files to potentially ignore
+Core/Startup/
+
+# Eclipse metadata
+.metadata/
+.recommenders/
+RemoteSystemsTempFiles/
+
+# Backups
+*.bak
+*~
+
+# OS specific
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# JLink
+JLinkLog.txt
+JLinkSettings.ini
+
+# OpenOCD
+openocd.log
+
+# IAR (falls du zwischen IDEs wechselst)
+Debug/
+Release/
+settings/
+*.dep
+*.ewt
+*.dni

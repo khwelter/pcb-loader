@@ -1,0 +1,5 @@
+../Core/Src/StepperTimerManager.cpp:3:1:StepperTimerManager::StepperTimerManager()	2
+../Core/Src/StepperTimerManager.cpp:9:22:static StepperTimerManager& StepperTimerManager::Instance()	3
+../Core/Src/StepperTimerManager.cpp:15:6:void StepperTimerManager::RegisterStepper(StepperMotorDriver*)	2
+../Core/Src/StepperTimerManager.cpp:21:6:void StepperTimerManager::UnregisterStepper(StepperMotorDriver*)	3
+../Core/Src/StepperTimerManager.cpp:34:6:void StepperTimerManager::OnTimerTick()	2
