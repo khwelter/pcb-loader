@@ -17,9 +17,13 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include	<stdio.h>
+#include	<string.h>
 #include "main.h"
 #include "StepperMotorDriver.h"
 #include "StepperTimerManager.h"
+#include	"Timer.h"
+#include	"CommandHandler.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -42,11 +46,11 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-uint32_t	timerCounter ;
 
 /* USER CODE END PV */
 
@@ -55,6 +59,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM3_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -65,22 +70,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	char	buffer	=	'>' ;
 	if (htim->Instance == TIM2) {
-		timerCounter++ ;
-		if ( timerCounter > 100) {
-			timerCounter	=	0 ;
-			HAL_UART_Transmit(&huart2, (const uint8_t *) &buffer, 1, HAL_MAX_DELAY);
-			StepperTimerManager::Instance().OnTimerTick();		}
+		TimerManager::getInstance().updateAll();
+	} else if (htim->Instance == TIM3) {
+		StepperTimerManager::Instance().OnTimerTick();
 	}
 }
 
 // Abschnitte = X => PreLoad, Y => Load, Z => Unload
 StepperMotorDriver stepperPreLoad(GPIOA, GPIO_PIN_6,   // STEP
                                   GPIOA, GPIO_PIN_1,   // DIR
-                                  GPIOA, GPIO_PIN_0,   // EN (aktiv LOW)
-                                  2);                  // Divider (Beispiel)
+                                  GPIOA, GPIO_PIN_0,
+								  800) ; // EN (aktiv LOW)
 
-StepperMotorDriver stepperLoad(GPIOA, GPIO_PIN_6, GPIOA, GPIO_PIN_1, GPIOA, GPIO_PIN_0, 5);
-StepperMotorDriver stepperUnload(GPIOA, GPIO_PIN_6, GPIOA, GPIO_PIN_1, GPIOA, GPIO_PIN_0, 10);
+StepperMotorDriver stepperLoad(GPIOB, GPIO_PIN_0, GPIOB, GPIO_PIN_1, GPIOB, GPIO_PIN_2);
+StepperMotorDriver stepperUnload(GPIOB, GPIO_PIN_4, GPIOB, GPIO_PIN_5, GPIOB, GPIO_PIN_6);
 
 void InitSteppers()
 {
@@ -90,9 +93,49 @@ void InitSteppers()
 
     // Beim Start werden sie registriert, aber sie bleiben deaktiviert,
     // bis du explizit Start() aufrufst.
+    stepperPreLoad.SetMaxSpeed(1600.0f);      // 2000 steps/s
+    stepperPreLoad.SetAcceleration(5000.0f);  // 1000 steps/s²
+    stepperPreLoad.SetJerk(10000.0f);          // 5000 steps/s³
     StepperTimerManager::Instance().RegisterStepper(&stepperPreLoad);
     StepperTimerManager::Instance().RegisterStepper(&stepperLoad);
     StepperTimerManager::Instance().RegisterStepper(&stepperUnload);
+}
+void timer1Callback() {
+//	static	bool	val	=	false ;
+//	uint8_t rx = val ? '*' : '#' ;
+//	HAL_UART_Transmit(&huart2, &rx, 1, HAL_MAX_DELAY);
+//	HAL_GPIO_WritePin( GPIOA, GPIO_PIN_1, val ? GPIO_PIN_RESET : GPIO_PIN_SET);
+//	val	=	val ? false : true ;
+}
+void g0Handler(float p, float l, float u, float f) {
+	stepperPreLoad.SetMaxSpeed((float) f);      // 2000 steps/s
+	if ( f == 0.0f) {
+		stepperPreLoad.Stop();
+		stepperLoad.Stop();
+		stepperUnload.Stop();
+	} else {
+		stepperPreLoad.StartAbs( p);
+		stepperLoad.StartAbs( l);
+		stepperUnload.StartAbs( u);
+	}
+}
+void g1Handler(float p, float l, float u) {
+	stepperPreLoad.StartRel( p);
+	stepperLoad.StartRel( l);
+	stepperUnload.StartRel( u);
+}
+void g2Handler() {
+	stepperPreLoad.Stop();
+	stepperLoad.Stop();
+	stepperUnload.Stop();
+}
+void m114Handler(void) {
+	uint8_t	buffer[64] ;
+	snprintf(( char *) buffer, 64, "P:%d L:%d U:%d\n",
+			( int) stepperPreLoad.GetCurrentPositionMm(),
+			( int) stepperLoad.GetCurrentPositionMm(),
+			( int) stepperUnload.GetCurrentPositionMm()) ;
+	HAL_UART_Transmit(&huart2, buffer, strlen(( const char *) buffer), HAL_MAX_DELAY);
 }
 /* USER CODE END 0 */
 
@@ -104,7 +147,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-  /* USER CODE END 1 */
+    CommandInterpreter interpreter;
+	Timer timer1(2500, timer1Callback);  // 1 Sekunde
+	/* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -126,19 +171,26 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM2_Init();
+  MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	InitSteppers() ;
-	HAL_TIM_Base_Start_IT(&htim2);		//	start TIM2 with interrupt
+	HAL_TIM_Base_Start_IT(&htim2);		//	start TIM2 with interrupt => 10ms (sps)timer
+	HAL_TIM_Base_Start_IT(&htim3);		//	start TIM2 with interrupt => 1ms stepper motors
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   uint8_t rx;
-  stepperPreLoad.Start();
+  // Registriere Callbacks
+  interpreter.setG0Callback(g0Handler);
+  interpreter.setG1Callback(g1Handler);
+  interpreter.setG2Callback(g2Handler);
+  interpreter.setM114Callback(m114Handler);
   while (1)
   {
 	if (HAL_UART_Receive(&huart2, &rx, 1, HAL_MAX_DELAY) == HAL_OK) {
-		HAL_UART_Transmit(&huart2, &rx, 1, HAL_MAX_DELAY);
+		interpreter.addChar( rx);
+//		HAL_UART_Transmit(&huart2, &rx, 1, HAL_MAX_DELAY);
 	}
     /* USER CODE END WHILE */
 
@@ -232,6 +284,51 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+  * @brief TIM3 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM3_Init(void)
+{
+
+  /* USER CODE BEGIN TIM3_Init 0 */
+
+  /* USER CODE END TIM3_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM3_Init 1 */
+
+  /* USER CODE END TIM3_Init 1 */
+  htim3.Instance = TIM3;
+  htim3.Init.Prescaler = 6400-1;
+  htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim3.Init.Period = 10;
+  htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM3_Init 2 */
+
+  /* USER CODE END TIM3_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -285,7 +382,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LD2_GPIO_Port, LD2_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0|GPIO_PIN_1|LD2_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_6, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -293,12 +393,19 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LD2_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin;
+  /*Configure GPIO pins : PA0 PA1 LD2_Pin */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|LD2_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PA6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

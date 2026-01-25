@@ -1,3 +1,4 @@
+"./Core/Src/CommandHandler.o"
 "./Core/Src/StepperMotorDriver.o"
 "./Core/Src/StepperTimerManager.o"
 "./Core/Src/main.o"
