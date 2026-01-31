@@ -1,17 +1,23 @@
-../Core/Inc/StepperMotorDriver.h:55:11:float StepperMotorDriver::MmToSteps(float) const	1
-../Core/Src/StepperMotorDriver.cpp:4:1:StepperMotorDriver::StepperMotorDriver(GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, float, float)	1
-../Core/Src/StepperMotorDriver.cpp:33:6:void StepperMotorDriver::Init()	1
-../Core/Src/StepperMotorDriver.cpp:41:6:void StepperMotorDriver::SetDirection(bool)	2
-../Core/Src/StepperMotorDriver.cpp:47:6:void StepperMotorDriver::SetMaxSpeed(float)	1
-../Core/Src/StepperMotorDriver.cpp:52:6:void StepperMotorDriver::SetAcceleration(float)	1
-../Core/Src/StepperMotorDriver.cpp:57:6:void StepperMotorDriver::SetJerk(float)	1
-../Core/Src/StepperMotorDriver.cpp:62:6:void StepperMotorDriver::SetStepsPerRevolution(float)	1
-../Core/Src/StepperMotorDriver.cpp:68:6:void StepperMotorDriver::SetMmPerRevolution(float)	1
-../Core/Src/StepperMotorDriver.cpp:74:6:void StepperMotorDriver::StartAbs(float)	1
-../Core/Src/StepperMotorDriver.cpp:80:6:void StepperMotorDriver::StartRel(float)	1
-../Core/Src/StepperMotorDriver.cpp:86:6:void StepperMotorDriver::StartMotion(float)	1
-../Core/Src/StepperMotorDriver.cpp:104:6:void StepperMotorDriver::Stop()	1
-../Core/Src/StepperMotorDriver.cpp:113:6:void StepperMotorDriver::EnableOutput(bool)	2
-../Core/Src/StepperMotorDriver.cpp:118:6:void StepperMotorDriver::StepPulse()	2
-../Core/Src/StepperMotorDriver.cpp:125:6:void StepperMotorDriver::UpdateMotionProfile()	22
-../Core/Src/StepperMotorDriver.cpp:274:6:void StepperMotorDriver::OnTimerTick()	5
+../Core/Inc/StepperMotorDriver.h:79:11:float StepperMotorDriver::MmToSteps(float) const	1
+../Core/Src/StepperMotorDriver.cpp:4:1:StepperMotorDriver::StepperMotorDriver(GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, GPIO_TypeDef*, uint16_t, float, float)	2
+../Core/Src/StepperMotorDriver.cpp:43:6:void StepperMotorDriver::Init()	1
+../Core/Src/StepperMotorDriver.cpp:51:6:void StepperMotorDriver::SetDirection(bool)	2
+../Core/Src/StepperMotorDriver.cpp:57:6:void StepperMotorDriver::SetMaxSpeed(float)	1
+../Core/Src/StepperMotorDriver.cpp:62:6:void StepperMotorDriver::SetAcceleration(float)	1
+../Core/Src/StepperMotorDriver.cpp:67:6:void StepperMotorDriver::SetJerk(float)	1
+../Core/Src/StepperMotorDriver.cpp:72:6:void StepperMotorDriver::SetStepsPerRevolution(float)	1
+../Core/Src/StepperMotorDriver.cpp:78:6:void StepperMotorDriver::SetMmPerRevolution(float)	1
+../Core/Src/StepperMotorDriver.cpp:84:6:void StepperMotorDriver::SetEndswitch(StepperPosition, GPIO_TypeDef*, uint16_t)	3
+../Core/Src/StepperMotorDriver.cpp:95:6:void StepperMotorDriver::SetPositionState(StepperPosition, PositionState)	3
+../Core/Src/StepperMotorDriver.cpp:105:15:PositionState StepperMotorDriver::GetPositionState(StepperPosition) const	3
+../Core/Src/StepperMotorDriver.cpp:115:6:bool StepperMotorDriver::IsPositionOccupied(StepperPosition) const	4
+../Core/Src/StepperMotorDriver.cpp:127:6:void StepperMotorDriver::UpdateEndswitches()	4
+../Core/Src/StepperMotorDriver.cpp:149:6:void StepperMotorDriver::CheckLoadedCondition()	7
+../Core/Src/StepperMotorDriver.cpp:171:6:void StepperMotorDriver::StartAbs(float)	5
+../Core/Src/StepperMotorDriver.cpp:197:6:void StepperMotorDriver::StartRel(float)	5
+../Core/Src/StepperMotorDriver.cpp:223:6:void StepperMotorDriver::StartMotion(float)	1
+../Core/Src/StepperMotorDriver.cpp:242:6:void StepperMotorDriver::Stop()	1
+../Core/Src/StepperMotorDriver.cpp:252:6:void StepperMotorDriver::EnableOutput(bool)	2
+../Core/Src/StepperMotorDriver.cpp:257:6:void StepperMotorDriver::StepPulse()	2
+../Core/Src/StepperMotorDriver.cpp:264:6:void StepperMotorDriver::UpdateMotionProfile()	24
+../Core/Src/StepperMotorDriver.cpp:426:6:void StepperMotorDriver::OnTimerTick()	5

@@ -1,16 +1,18 @@
-../Core/Src/main.cpp:103:6:void timer1Callback()	1
-../Core/Src/main.cpp:127:6:void g2Handler()	1
-../Core/Src/main.cpp:122:6:void g1Handler(float, float, float)	1
-../Core/Src/main.cpp:132:6:void m114Handler()	1
-../Core/Src/main.cpp:110:6:void g0Handler(float, float, float, float)	2
+../Core/Src/main.cpp:106:6:void timer1Callback()	1
+../Core/Src/main.cpp:130:6:void g2Handler()	1
+../Core/Src/main.cpp:125:6:void g1Handler(float, float, float)	1
+../Core/Src/main.cpp:135:6:void m18Handler()	1
+../Core/Src/main.cpp:140:6:void m19Handler()	1
+../Core/Src/main.cpp:146:6:void m114Handler()	1
+../Core/Src/main.cpp:113:6:void g0Handler(float, float, float, float)	2
 C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/bits/std_function.h:267:7:), _Functor>::_M_manager(std::_Any_data&, const std::_Any_data&, std::_Manager_operation) [with _Res = void; _Functor = void (*)(); _ArgTypes = {}]	5
 C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/bits/std_function.h:288:7:) [with _Res = void; _Functor = void (*)(); _ArgTypes = {}]	1
 ../Core/Inc/Timer.h:168:29:void __tcf_0()	2
 ../Core/Inc/Timer.h:167:26:static TimerManager& TimerManager::getInstance()	3
 ../Core/Src/main.cpp:69:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	9
 ../Core/Src/main.cpp:88:6:void InitSteppers()	1
-../Core/Src/main.cpp:206:6:void SystemClock_Config()	3
-../Core/Src/main.cpp:423:6:void Error_Handler()	1
+../Core/Src/main.cpp:222:6:void SystemClock_Config()	3
+../Core/Src/main.cpp:445:6:void Error_Handler()	1
 C:\ST\STM32CubeIDE_1.19.0\STM32CubeIDE\plugins\com.st.stm32cube.ide.mcu.externaltools.gnu-tools-for-stm32.13.3.rel1.win32_1.0.0.202411081344\tools\bin/../lib/gcc/arm-none-eabi/13.3.1/../../../../arm-none-eabi/include/c++/13.3.1/bits/vector.tcc:445:7:) [with _Args = {Timer* const&}; _Tp = Timer*; _Alloc = std::allocator<Timer*>]	6
-../Core/Src/main.cpp:146:5:int main()	11
-../Core/Src/main.cpp:432:1:cpp)	1
+../Core/Src/main.cpp:160:5:int main()	11
+../Core/Src/main.cpp:454:1:cpp)	1

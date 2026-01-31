@@ -96,9 +96,12 @@ void InitSteppers()
     stepperPreLoad.SetMaxSpeed(1600.0f);      // 2000 steps/s
     stepperPreLoad.SetAcceleration(5000.0f);  // 1000 steps/s²
     stepperPreLoad.SetJerk(10000.0f);          // 5000 steps/s³
+
     StepperTimerManager::Instance().RegisterStepper(&stepperPreLoad);
     StepperTimerManager::Instance().RegisterStepper(&stepperLoad);
     StepperTimerManager::Instance().RegisterStepper(&stepperUnload);
+
+    stepperPreLoad.SetEndswitch(StepperPosition::PRELOAD_POS, ES_LOADED_GPIO_Port, ES_LOADED_Pin);
 }
 void timer1Callback() {
 //	static	bool	val	=	false ;
@@ -129,6 +132,17 @@ void g2Handler() {
 	stepperLoad.Stop();
 	stepperUnload.Stop();
 }
+void m18Handler(void) {
+	stepperPreLoad.EnableOutput( false) ;
+	stepperLoad.EnableOutput( false) ;
+	stepperUnload.EnableOutput( false) ;
+}
+void m19Handler(void) {
+	stepperPreLoad.EnableOutput( true) ;
+	stepperLoad.EnableOutput( true) ;
+	stepperUnload.EnableOutput( true) ;
+}
+
 void m114Handler(void) {
 	uint8_t	buffer[64] ;
 	snprintf(( char *) buffer, 64, "P:%d L:%d U:%d\n",
@@ -185,6 +199,8 @@ int main(void)
   interpreter.setG0Callback(g0Handler);
   interpreter.setG1Callback(g1Handler);
   interpreter.setG2Callback(g2Handler);
+  interpreter.setM18Callback(m18Handler);
+  interpreter.setM19Callback(m19Handler);
   interpreter.setM114Callback(m114Handler);
   while (1)
   {
@@ -406,6 +422,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : ES_LOADED_Pin */
+  GPIO_InitStruct.Pin = ES_LOADED_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(ES_LOADED_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

@@ -25,6 +25,14 @@ void CommandInterpreter::setG2Callback(G2Callback callback) {
     g2Callback = callback;
 }
 
+void CommandInterpreter::setM18Callback(M18Callback callback) {
+    m18Callback = callback;
+}
+
+void CommandInterpreter::setM19Callback(M19Callback callback) {
+    m19Callback = callback;
+}
+
 void CommandInterpreter::setM114Callback(M114Callback callback) {
     m114Callback = callback;
 }
@@ -110,6 +118,12 @@ bool CommandInterpreter::parseCommand(const char* str, Command& cmd) {
         if (temp[1] == '1' && temp[2] == '1' && temp[3] == '4' && temp[4] == '\0') {
             cmd = Command::M114;
             return true;
+        } else  if (temp[1] == '1' && temp[2] == '8' && temp[3] == '\0') {
+            cmd = Command::M18;
+            return true;
+        } else  if (temp[1] == '1' && temp[2] == '9' && temp[3] == '\0') {
+            cmd = Command::M19;
+            return true;
         }
     }
 
@@ -166,6 +180,20 @@ void CommandInterpreter::processCommand() {
     if (cmd == Command::G2) {
         if (g2Callback) {
             g2Callback();
+        }
+        return;
+    }
+
+    if (cmd == Command::M18) {
+        if (m18Callback) {
+            m18Callback();
+        }
+        return;
+    }
+
+    if (cmd == Command::M19) {
+        if (m19Callback) {
+            m19Callback();
         }
         return;
     }
