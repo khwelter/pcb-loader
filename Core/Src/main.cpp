@@ -68,7 +68,6 @@ static void MX_TIM3_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-	char	buffer	=	'>' ;
 	if (htim->Instance == TIM2) {
 		TimerManager::getInstance().updateAll();
 	} else if (htim->Instance == TIM3) {
@@ -78,12 +77,21 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 // Abschnitte = X => PreLoad, Y => Load, Z => Unload
 StepperMotorDriver stepperPreLoad(GPIOA, GPIO_PIN_6,   // STEP
-                                  GPIOA, GPIO_PIN_1,   // DIR
-                                  GPIOA, GPIO_PIN_0,
-								  800) ; // EN (aktiv LOW)
+                                  	GPIOA, GPIO_PIN_1,   // DIR
+									GPIOA, GPIO_PIN_0,
+									800,
+									40) ; // EN (aktiv LOW)
 
-StepperMotorDriver stepperLoad(GPIOB, GPIO_PIN_0, GPIOB, GPIO_PIN_1, GPIOB, GPIO_PIN_2);
-StepperMotorDriver stepperUnload(GPIOB, GPIO_PIN_4, GPIOB, GPIO_PIN_5, GPIOB, GPIO_PIN_6);
+StepperMotorDriver stepperLoad(GPIOB, GPIO_PIN_0,
+									GPIOB, GPIO_PIN_1,
+									GPIOB, GPIO_PIN_2,
+									800,
+									48);
+StepperMotorDriver stepperUnload(GPIOB, GPIO_PIN_4,
+									GPIOB, GPIO_PIN_5,
+									GPIOB, GPIO_PIN_6,
+									800,
+									40);
 
 void InitSteppers()
 {
@@ -151,6 +159,16 @@ void m114Handler(void) {
 			( int) stepperUnload.GetCurrentPositionMm()) ;
 	HAL_UART_Transmit(&huart2, buffer, strlen(( const char *) buffer), HAL_MAX_DELAY);
 }
+
+void m119Handler(void) {
+	uint8_t	buffer[64] ;
+	snprintf(( char *) buffer, 64, "pre-load %s\n", ( stepperPreLoad.GetPositionState( StepperPosition::PRELOAD_POS) == PositionState::POSITION_LOADED) ? "loaded" : "unloaded") ;
+	HAL_UART_Transmit(&huart2, buffer, strlen(( const char *) buffer), HAL_MAX_DELAY);
+	snprintf(( char *) buffer, 64, "load %s\n", ( stepperLoad.GetPositionState( StepperPosition::LOAD_POS) == PositionState::POSITION_LOADED) ? "loaded" : "unloaded") ;
+	HAL_UART_Transmit(&huart2, buffer, strlen(( const char *) buffer), HAL_MAX_DELAY);
+	snprintf(( char *) buffer, 64, "unload %s\n", ( stepperUnload.GetPositionState( StepperPosition::UNLOAD_POS) == PositionState::POSITION_LOADED) ? "loaded" : "unloaded") ;
+	HAL_UART_Transmit(&huart2, buffer, strlen(( const char *) buffer), HAL_MAX_DELAY);
+}
 /* USER CODE END 0 */
 
 /**
@@ -202,6 +220,7 @@ int main(void)
   interpreter.setM18Callback(m18Handler);
   interpreter.setM19Callback(m19Handler);
   interpreter.setM114Callback(m114Handler);
+  interpreter.setM119Callback(m119Handler);
   while (1)
   {
 	if (HAL_UART_Receive(&huart2, &rx, 1, HAL_MAX_DELAY) == HAL_OK) {
@@ -426,7 +445,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : ES_LOADED_Pin */
   GPIO_InitStruct.Pin = ES_LOADED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(ES_LOADED_GPIO_Port, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */

@@ -6,6 +6,7 @@ CommandInterpreter::CommandInterpreter()
     , g1Callback(nullptr)
     , g2Callback(nullptr)
     , m114Callback(nullptr)
+	, m119Callback(nullptr)
     , current_p(0.0f)
     , current_l(0.0f)
     , current_u(0.0f)
@@ -35,6 +36,10 @@ void CommandInterpreter::setM19Callback(M19Callback callback) {
 
 void CommandInterpreter::setM114Callback(M114Callback callback) {
     m114Callback = callback;
+}
+
+void CommandInterpreter::setM119Callback(M119Callback callback) {
+    m119Callback = callback;
 }
 
 void CommandInterpreter::setInitialDefaults(float p, float l, float u, float f) {
@@ -117,6 +122,9 @@ bool CommandInterpreter::parseCommand(const char* str, Command& cmd) {
         // M114
         if (temp[1] == '1' && temp[2] == '1' && temp[3] == '4' && temp[4] == '\0') {
             cmd = Command::M114;
+            return true;
+        } else  if (temp[1] == '1' && temp[2] == '1' && temp[3] == '9' && temp[4] == '\0') {
+            cmd = Command::M119;
             return true;
         } else  if (temp[1] == '1' && temp[2] == '8' && temp[3] == '\0') {
             cmd = Command::M18;
@@ -201,6 +209,13 @@ void CommandInterpreter::processCommand() {
     if (cmd == Command::M114) {
         if (m114Callback) {
             m114Callback();
+        }
+        return;
+    }
+
+    if (cmd == Command::M119) {
+        if (m119Callback) {
+            m119Callback();
         }
         return;
     }

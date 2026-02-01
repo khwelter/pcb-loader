@@ -10,7 +10,8 @@ enum class Command : uint8_t {
     G2 = 2,
     M18 = 3,
     M19 = 4,
-    M114 = 5
+    M114 = 5,
+	M119 = 6
 };
 
 // Callback-Typen
@@ -32,6 +33,9 @@ typedef void (*M19Callback)(void);
 // M114: keine Parameter
 typedef void (*M114Callback)(void);
 
+// M119: keine Parameter
+typedef void (*M119Callback)(void);
+
 // Haupt-Interpreter-Klasse
 class CommandInterpreter {
 public:
@@ -44,6 +48,7 @@ public:
     void setM18Callback(M18Callback callback);
     void setM19Callback(M19Callback callback);
     void setM114Callback(M114Callback callback);
+    void setM119Callback(M119Callback callback);
 
     // Setze initiale Default-Werte
     void setInitialDefaults(float p, float l, float u, float f);
@@ -72,6 +77,7 @@ private:
     M18Callback m18Callback;
     M19Callback m19Callback;
     M114Callback m114Callback;
+    M119Callback m119Callback;
 
     // Aktuell gespeicherte Werte (werden bei jedem Befehl aktualisiert)
     float current_p;

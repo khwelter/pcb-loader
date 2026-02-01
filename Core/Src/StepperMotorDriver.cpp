@@ -270,7 +270,7 @@ void StepperMotorDriver::UpdateMotionProfile()
     if (_phase == MotionPhase::LOADED_DELAY)
     {
         _loadedDelayCounter++;
-        if (_loadedDelayCounter >= 1000)  // 1000 ms = 1 Sekunde
+        if (_loadedDelayCounter >= 250)  // 1000 ms = 1 Sekunde
         {
             Stop();
             return;
@@ -471,10 +471,10 @@ void StepperMotorDriver::UpdateMotionProfile()
 
 void StepperMotorDriver::OnTimerTick()
 {
+    UpdateEndswitches();      // Endschalter aktualisieren
     if (!_enabled || _phase == MotionPhase::IDLE)
         return;
 
-    UpdateEndswitches();      // Endschalter aktualisieren
     CheckLoadedCondition();   // LOADED-Flanke prüfen
     UpdateMotionProfile();
 
